@@ -11,8 +11,11 @@ struct Main {
 }
 
 struct Sus: ParsableCommand {
-    @Argument(help: "TODO")
-    var command: [String]
+    @Argument(
+        parsing: .postTerminator,
+        help: "TODO"
+    )
+    var spawnCommand: [String]
 
     static var configuration = CommandConfiguration(
         abstract: "TODO"
@@ -29,7 +32,7 @@ struct Sus: ParsableCommand {
         }
 
         // Start the initial process
-        startOrRestartProcess(command: command)
+        startOrRestartProcess()
 
         app.run()
     }
@@ -44,19 +47,19 @@ struct Sus: ParsableCommand {
 
         KeyboardShortcuts.onKeyUp(for: .restart) {
             print("Hotkey pressed: Restarting process...")
-            startOrRestartProcess(command: command)
+            startOrRestartProcess()
         }
     }
 
-    private func startOrRestartProcess(command: [String]) {
-        guard !command.isEmpty else {
+    private func startOrRestartProcess() {
+        guard !spawnCommand.isEmpty else {
             print("Error: No command provided to execute.")
             return
         }
 
         let process = Process()
         process.launchPath = "/usr/bin/env" // Use `env` to find the command in the PATH
-        process.arguments = command
+        process.arguments = spawnCommand
 
         process.standardOutput = FileHandle.standardOutput
         process.standardError = FileHandle.standardError
@@ -66,6 +69,7 @@ struct Sus: ParsableCommand {
             print("Process has terminated. Use hotkey to restart.")
         }
 
+        print("$ \(spawnCommand.joined(separator: " "))")
         process.launch()
     }
 }
