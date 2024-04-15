@@ -11,6 +11,9 @@ struct Main {
 }
 
 struct Sus: ParsableCommand {
+    // TODO: support custom hotkey bindings
+    // TODO: colorize self output
+
     @Argument(
         parsing: .postTerminator,
         help: "TODO"
@@ -28,7 +31,7 @@ struct Sus: ParsableCommand {
 
         // Continue running the process in an infinite management cycle
         NotificationCenter.default.addObserver(forName: Process.didTerminateNotification, object: nil, queue: nil) { _ in
-            print("Process terminated. Ready to restart.")
+            print("[sus] process terminated (TODO: status?). ready to restart.")
         }
 
         // Start the initial process
@@ -43,17 +46,17 @@ struct Sus: ParsableCommand {
             for: .restart
         )
 
-        print("Listening on hotkey: \(KeyboardShortcuts.getShortcut(for: .restart)!)")
+        print("[sus] listening on hotkey: \(KeyboardShortcuts.getShortcut(for: .restart)!)")
 
         KeyboardShortcuts.onKeyUp(for: .restart) {
-            print("Hotkey pressed: Restarting process...")
+            print("[sus] hotkey pressed: restarting process...")
             startOrRestartProcess()
         }
     }
 
     private func startOrRestartProcess() {
         guard !spawnCommand.isEmpty else {
-            print("Error: No command provided to execute.")
+            print("[sus] error: no command provided to execute.")
             return
         }
 
@@ -66,10 +69,10 @@ struct Sus: ParsableCommand {
         process.standardInput = FileHandle.standardInput
 
         process.terminationHandler = { _ in
-            print("Process has terminated. Use hotkey to restart.")
+            print("[sus] process has terminated. use hotkey to restart.")
         }
 
-        print("$ \(spawnCommand.joined(separator: " "))")
+        print("[sus] $ \(spawnCommand.joined(separator: " "))")
         process.launch()
     }
 }
