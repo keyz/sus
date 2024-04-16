@@ -1,11 +1,14 @@
 import ArgumentParser
 import Cocoa
+import Darwin
 import Foundation
 import KeyboardShortcuts
 
 @main
 struct Main {
     static func main() {
+        signal(SIGTTOU, SIG_IGN) // Ignore all TTOU signals
+
         Sus.main()
     }
 }
@@ -74,6 +77,10 @@ struct Sus: ParsableCommand {
 
         print("[sus] $ \(spawnCommand.joined(separator: " "))")
         process.launch()
+
+        // See https://forums.swift.org/t/how-to-allow-process-to-receive-user-input-when-run-as-part-of-an-executable-e-g-to-enabled-sudo-commands/34357/7
+        // and https://github.com/jakeheis/SwiftCLI/issues/47
+        tcsetpgrp(STDIN_FILENO, process.processIdentifier)
     }
 }
 
